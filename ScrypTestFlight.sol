@@ -1,33 +1,8 @@
 pragma solidity ^0.4.24;
 
-contract Owned {
-    address public owner;
-
-    constructor() public {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
-    function transferOwnership(address newOwner) onlyOwner public {
-        owner = newOwner;
-    }
-}
-
-
-contract TokenRecipient {
-    function receiveApproval (
-        address _from,
-        uint256 _value,
-        address _token,
-        bytes _extraData
-        )
-        public;
-}
-
+/* Make sure other contracts all in same directory */
+import "./Owned.sol";
+import "./TokenRecipient.sol";
 
 contract ScrypTestflight is Owned {
     /* Public variables of the token */
@@ -48,7 +23,7 @@ contract ScrypTestflight is Owned {
     /* This notifies clients about the amount burnt */
     event Burn(address indexed from, uint256 value);
 
-    /* Initializes contract with initial supply tokens
+    /* Initializes contract with initial supply tokens 
     to the creator of the contract */
     constructor(
         uint256 initialSupply,
@@ -56,8 +31,8 @@ contract ScrypTestflight is Owned {
         uint8 decimalUnits,
         string tokenSymbol,
         address centralMinter
-        )
-        public
+        ) 
+        public 
     {
             if (centralMinter != 0 ) {
                 owner = centralMinter;
@@ -65,21 +40,21 @@ contract ScrypTestflight is Owned {
 
             /* Give the creator all initial tokens */
             balanceOf[msg.sender] = initialSupply;
-
+            
             /* Update total supply */
             totalSupply = initialSupply;
-
+            
             /* Set the name for display purposes */
             name = tokenName;
-
+            
             /* Set the symbol for display purposes */
             symbol = tokenSymbol;
-
+            
             /* Amount of decimals for display purposes */
             decimals = decimalUnits;
     }
 
-    /* This is a function allowing the owner to mint new tokens after
+    /* This is a function allowing the owner to mint new tokens after 
     contract deployment */
     function mintToken(address target, uint256 mintedAmount) onlyOwner public {
         balanceOf[target] += mintedAmount;
@@ -92,19 +67,19 @@ contract ScrypTestflight is Owned {
     function transfer(address _to, uint256 _value) public {
         /* Prevent transfer to 0x0 address. Use burn() instead */
         require(_to != 0x0);
-
+        
         /* Check if the sender has enough */
         require(balanceOf[msg.sender] >= _value);
-
+        
         /* Check for overflows */
         require((balanceOf[_to] + _value) >= balanceOf[_to]);
-
+        
         /* Subtract from the sender */
         balanceOf[msg.sender] -= _value;
-
+        
         /* Add the same to the recipient */
         balanceOf[_to] += _value;
-
+        
         /* Notify anyone listening that this transfer took place */
         emit Transfer(msg.sender, _to, _value);
     }
@@ -113,9 +88,9 @@ contract ScrypTestflight is Owned {
     function approve(
         address _spender,
         uint256 _value
-        )
-        public
-        returns (bool success)
+        ) 
+        public 
+        returns (bool success) 
     {
         allowance[msg.sender][_spender] = _value;
         return true;
@@ -123,12 +98,12 @@ contract ScrypTestflight is Owned {
 
     /* Approve and then communicate the approved contract in a single tx */
     function approveAndCall(
-        address _spender,
-        uint256 _value,
+        address _spender, 
+        uint256 _value, 
         bytes _extraData
-    )
-        public
-        returns (bool success)
+    ) 
+        public 
+        returns (bool success) 
     {
         TokenRecipient spender = TokenRecipient(_spender);
         if (approve(_spender, _value)) {
@@ -139,28 +114,28 @@ contract ScrypTestflight is Owned {
 
     /* A contract attempts to get the coins */
     function transferFrom(
-        address _from,
-        address _to,
+        address _from, 
+        address _to, 
         uint256 _value
-        )
-        public
+        ) 
+        public 
         returns (bool success)
     {
         /* Prevent transfer to 0x0 address. Use burn() instead */
         require(_to != 0x0);
-
+        
         /* Check if the sender has enough */
         require(balanceOf[_from] >= _value);
-
+        
         /* Check for overflows */
         require((balanceOf[_to] + _value) >= balanceOf[_to]);
-
+        
         /* Check allowance */
         require(_value <= allowance[_from][msg.sender]);
-
+        
         /* Subtract from the sender */
         balanceOf[_from] -= _value;
-
+        
         /* Add the same to the recipient */
         balanceOf[_to] += _value;
         allowance[_from][msg.sender] -= _value;
@@ -171,10 +146,10 @@ contract ScrypTestflight is Owned {
     function burn(uint256 _value) public returns (bool success) {
         /* Check if the sender has enough */
         require(balanceOf[msg.sender] >= _value);
-
+        
         /* Subtract from the sender */
         balanceOf[msg.sender] -= _value;
-
+        
         /* Updates totalSupply */
         totalSupply -= _value;
         emit Burn(msg.sender, _value);
@@ -182,21 +157,21 @@ contract ScrypTestflight is Owned {
     }
 
     function burnFrom(
-        address _from,
+        address _from, 
         uint256 _value
-        )
-        public
-        returns (bool success)
+        ) 
+        public 
+        returns (bool success) 
     {
         /* Check if the sender has enough */
         require(balanceOf[_from] >= _value);
-
+        
         /* Check allowance */
         require(_value <= allowance[_from][msg.sender]);
-
+        
         /* Subtract from the sender */
         balanceOf[_from] -= _value;
-
+        
         /* Updates totalSupply */
         totalSupply -= _value;
         emit Burn(_from, _value);
