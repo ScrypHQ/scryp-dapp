@@ -13,8 +13,16 @@ Visual Studio, Cloud9
 # Test environment:
 
 Smart contracts have been tested on ethereumjs-testrpc using
-Truffle Ganache CLI. Rinkeby testnet deployment is the
-next phase.
+Truffle Ganache CLI. Ropsten test network is the next phase. This test network
+is the most logical choice for a few reasons. First, it uses proof of work
+(the same as the main Ethereum network) while others like RinkeBy, Sokol, and Kovan
+use proof of authority. It makes the most sense to test our contracts
+in an environment that is more similar to the actual network. Furthermore, Ropsten
+has the largest chaindata size of the test networks and is the only one to support
+both geth and parity--the two most popular clients. Although Ropsten isn't immune to
+spam attacks, and is thus less stable than the other test networks, for our usage this
+shouldn't be too big of an issue since our contract has central minting capabilities, which
+would enable us to recreate the accounts from a previous block snapshot.
     
 For fast, formal Solidity analysis, https://remix.ethereum.org/ is
 a helpful environment.
