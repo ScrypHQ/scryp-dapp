@@ -15,6 +15,11 @@ contract ScrypTestflight is Owned {
     /* This creates an array with all balances */
     mapping (address => uint256) public balanceOf;
     mapping (address => mapping (address => uint256)) public allowance;
+    
+    /* These arrays are for saving the total USD saved and the total Scryp
+    earned per each user */
+    mapping (address => uint256) public usdSaved;
+    mapping (address => uint256) public scrypEarned;
 
     /* This generates a public event on the blockchain
     that will notify clients */
@@ -41,6 +46,9 @@ contract ScrypTestflight is Owned {
             /* Give the creator all initial tokens */
             balanceOf[msg.sender] = initialSupply;
             
+            /* Count the initial supply as Scryp earned by the creator */
+            scrypEarned[msg.sender] = initialSupply;
+            
             /* Update total supply */
             totalSupply = initialSupply;
             
@@ -58,6 +66,7 @@ contract ScrypTestflight is Owned {
     contract deployment */
     function mintToken(address target, uint256 mintedAmount) onlyOwner public {
         balanceOf[target] += mintedAmount;
+        scrypEarned[target] += mintedAmount;
         totalSupply += mintedAmount;
         emit Transfer(0, owner, mintedAmount);
         emit Transfer(owner, target, mintedAmount);
@@ -79,6 +88,7 @@ contract ScrypTestflight is Owned {
         
         /* Add the same to the recipient */
         balanceOf[_to] += _value;
+        scrypEarned[_to] += _value;
         
         /* Notify anyone listening that this transfer took place */
         emit Transfer(msg.sender, _to, _value);
@@ -138,6 +148,7 @@ contract ScrypTestflight is Owned {
         
         /* Add the same to the recipient */
         balanceOf[_to] += _value;
+        scrypEarned[_to] += _value;
         allowance[_from][msg.sender] -= _value;
         emit Transfer(_from, _to, _value);
         return true;
@@ -149,6 +160,7 @@ contract ScrypTestflight is Owned {
         
         /* Subtract from the sender */
         balanceOf[msg.sender] -= _value;
+        usdSaved[msg.sender] += _value;
         
         /* Updates totalSupply */
         totalSupply -= _value;
@@ -171,6 +183,7 @@ contract ScrypTestflight is Owned {
         
         /* Subtract from the sender */
         balanceOf[_from] -= _value;
+        usdSaved[_from] += _value;
         
         /* Updates totalSupply */
         totalSupply -= _value;
